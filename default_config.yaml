@@ -31,6 +31,7 @@ ablation_mode: "full_system"
 # Early exit threshold: If any initial solution achieves this composite score,
 # skip evolution and mitigation phases (saves 2-4 LLM calls)
 # Recommended: 0.95 (requires near-perfect correctness, quality, and security)
+<--------------------------------updated by me ---------------------------------------------------------->
 score_threshold: 0.45
 
 # Maximum number of mitigation iterations to apply when solutions have issues
@@ -41,13 +42,19 @@ max_mitigation_iterations: 2
 # LLM Configuration
 # ============================================================================
 # Model identifier for the language model
+
+<-----------------------------updated by me , here AI  hallucination and aaded model which didn't exists-------------------------------->
 # Examples: "mistral-medium", "mistral-large", "gpt-3.5-turbo"
+
 llm_model: "mistral-medium"
+<---------------------------------------------------------------------------------------------------------------------------------------->
 
 # API endpoint for LLM (optional, uses default if not specified)
 # Example: "https://api.openai.com/v1" or "https://api-inference.huggingface.co/models"
-llm_api_endpoint: https://api.mistral.ai/v1/chat/completions
 
+<-----------------------------updated by me , here AI  hallucination and aaded model which didn't exists-------------------------------->
+llm_api_endpoint: https://api.mistral.ai/v1/chat/completions
+<---------------------------------------------------------------------------------------------------------------------------------------->
 # API key for LLM access (DO NOT hardcode here - use environment variable)
 # Set via: export LLM_API_KEY="your-api-key-here"
 # This value will be overridden by LLM_API_KEY environment variable if set

@@ -1,0 +1,197 @@
+# Default configuration for Hybrid Code Generation System
+# This file contains all configurable parameters for the hybrid code generation pipeline.
+# For sensitive values like API keys, use environment variables instead of hardcoding them here.
+#
+# Environment Variables:
+#   LLM_API_KEY: API key for LLM access (overrides llm_api_key if set)
+#   HUGGINGFACE_TOKEN: Token for Hugging Face Hub access (optional)
+#   OUTPUT_DIR: Override output directory (overrides output_dir if set)
+
+# ============================================================================
+# Dataset Configuration
+# ============================================================================
+# Specifies which benchmark dataset to use for evaluation
+# Options: "HumanEval" (164 problems), "MBPP" (500 problems)
+dataset: "HumanEval"
+
+# ============================================================================
+# Ablation Study Mode
+# ============================================================================
+# Controls which components of the system are enabled for ablation studies
+# Options:
+#   - "baseline": Single strategy, no evolution, no mitigation
+#   - "multi_strategy": 3 strategies, no evolution, no mitigation
+#   - "with_evolution": Multi-strategy + evolution, no mitigation
+#   - "full_system": All components enabled (recommended)
+ablation_mode: "full_system"
+
+# ============================================================================
+# Pipeline Thresholds
+# ============================================================================
+# Early exit threshold: If any initial solution achieves this composite score,
+# skip evolution and mitigation phases (saves 2-4 LLM calls)
+# Recommended: 0.95 (requires near-perfect correctness, quality, and security)
+score_threshold: 0.45
+
+# Maximum number of mitigation iterations to apply when solutions have issues
+# Each iteration uses 1 LLM call. Recommended: 2 (balances accuracy and efficiency)
+max_mitigation_iterations: 2
+
+# ============================================================================
+# LLM Configuration
+# ============================================================================
+# Model identifier for the language model
+# Examples: "mistral-medium", "mistral-large", "gpt-3.5-turbo"
+llm_model: "mistral-medium"
+
+# API endpoint for LLM (optional, uses default if not specified)
+# Example: "https://api.openai.com/v1" or "https://api-inference.huggingface.co/models"
+llm_api_endpoint: https://api.mistral.ai/v1/chat/completions
+
+# API key for LLM access (DO NOT hardcode here - use environment variable)
+# Set via: export LLM_API_KEY="your-api-key-here"
+# This value will be overridden by LLM_API_KEY environment variable if set
+llm_api_key: null  # Set via MISTRAL_API_KEY environment variable
+#MISTRAL_API_ENDPOINT=https://api.mistral.ai/v1/chat/completions
+
+
+# Number of retry attempts for failed LLM calls
+# Retries use exponential backoff with delays specified below
+llm_max_retries: 3
+
+# Delay in seconds between retry attempts (exponential backoff)
+# Example: [1.0, 2.0, 4.0] means 1s, 2s, 4s delays for retries 1, 2, 3
+llm_retry_delays: [1.0, 2.0, 4.0]
+
+# Temperature for LLM generation (0.0 to 1.0)
+# Lower values = more deterministic, higher values = more creative
+# Recommended: 0.7 for code generation
+llm_temperature: 0.7
+
+# Maximum tokens for LLM generation
+# Recommended: 2048 for code generation tasks
+llm_max_tokens: 2048
+
+# ============================================================================
+# Detection Engine Configuration
+# ============================================================================
+# Path to fine-tuned CodeBERT model for hallucination classification
+# If null, will attempt to download from Hugging Face Hub
+# Example: "models/codebert-hallucination-classifier"
+# Can also use environment variable: CODEBERT_MODEL_PATH
+codebert_model_path: null
+
+# Hugging Face model identifier for CodeBERT (used if codebert_model_path is null)
+# Example: "microsoft/codebert-base"
+codebert_model_id: "microsoft/codebert-base"
+
+# Maximum execution time per test case (seconds)
+# Tests exceeding this limit are marked as failed with timeout error
+test_timeout_seconds: 5
+
+# Memory limit for code execution sandbox (MB)
+# Prevents memory exhaustion from buggy or malicious code
+memory_limit_mb: 512
+
+# CPU time limit for code execution (seconds)
+# Prevents infinite loops and excessive computation
+cpu_time_limit_seconds: 5
+
+# Enable sandboxed execution (recommended for security)
+# If false, code runs in current process (use only for debugging)
+enable_sandbox: true
+
+# ============================================================================
+# Static Analysis Configuration
+# ============================================================================
+# Pylint configuration for dead code detection
+pylint_enabled: true
+pylint_timeout_seconds: 2
+
+# Vulture configuration for unused code detection
+vulture_enabled: true
+vulture_timeout_seconds: 2
+
+# ============================================================================
+# Security Scanning Configuration
+# ============================================================================
+# Bandit configuration for security vulnerability detection
+bandit_enabled: true
+bandit_timeout_seconds: 2
+
+# Maximum number of vulnerabilities to track (for scoring calculation)
+max_vulnerabilities: 10
+
+# ============================================================================
+# Composite Scoring Weights
+# ============================================================================
+# Weights for computing composite score from detection results
+# Formula: composite_score = (test_pass_rate * test_weight) + 
+#                            (quality_score * quality_weight) + 
+#                            (security_score * security_weight)
+# IMPORTANT: Weights must sum to 1.0
+
+# Weight for test correctness (0.0 to 1.0)
+# Recommended: 0.5 (prioritizes functional correctness)
+test_weight: 0.5
+
+# Weight for code quality - absence of hallucinations and dead code (0.0 to 1.0)
+# Recommended: 0.3 (ensures maintainability)
+quality_weight: 0.3
+
+# Weight for security - absence of vulnerabilities (0.0 to 1.0)
+# Recommended: 0.2 (important but secondary to correctness)
+security_weight: 0.2
+
+# ============================================================================
+# Strategy Generation Configuration
+# ============================================================================
+# Number of diverse strategies to generate in Phase 1
+num_strategies: 3
+
+# Predefined strategy templates (used as fallback if LLM fails)
+fallback_strategies:
+  - name: "Iterative Approach"
+    description: "Use iterative loops to process data sequentially"
+    approach_type: "iterative"
+  - name: "Recursive Approach"
+    description: "Use recursive function calls to break down the problem"
+    approach_type: "recursive"
+  - name: "Data Structure Optimized"
+    description: "Use appropriate data structures (dict, set, heap) for efficiency"
+    approach_type: "data_structure_optimized"
+
+# ============================================================================
+# Output Configuration
+# ============================================================================
+# Directory where results, logs, and reports will be saved
+# Will be created if it doesn't exist
+# Can be overridden by OUTPUT_DIR environment variable
+output_dir: "results"
+
+# Enable detailed per-problem logging
+enable_detailed_logging: true
+
+# Save intermediate solutions (initial, evolved, mitigated)
+save_intermediate_solutions: true
+
+# Logging level for console and file output
+# Options: "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"
+log_level: "INFO"
+
+# Log file path (relative to output_dir)
+log_file: "experiment.log"
+
+# ============================================================================
+# Performance Configuration
+# ============================================================================
+# Maximum total execution time per problem (seconds)
+# Prevents hanging on difficult problems
+max_problem_time_seconds: 300
+
+# Enable parallel processing for detection (experimental)
+# Note: LLM calls are always sequential to maintain call count accuracy
+enable_parallel_detection: false
+
+# Number of worker processes for parallel detection (if enabled)
+num_workers: 4

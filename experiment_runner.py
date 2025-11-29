@@ -97,10 +97,11 @@ class ExperimentRunner:
         
         # Process each problem
         results = []
+ <<-----------------------------------------i added by me----------------------------------------------------------------------------------------------->
         for i, problem in enumerate(tqdm(problems, desc="Processing problems")):
             try:
                 self.logger.info(f"Processing problem {i+1}/{len(problems)}: {problem.task_id}")
-                
+ <-------------------------------------------------------------------------------------------------------------------------------------------------------------------->       
                 # Solve the problem
                 result = self._solve_problem(problem)
                 results.append(result)

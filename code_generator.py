@@ -285,7 +285,7 @@ Provide ONLY the Python code without additional explanation. You may use markdow
         logger.info(f"Generating code for {len(strategies)} strategies")
         
         solutions = []
-  <----------------------------i added by me for proper logging------------------------------------------------------>      
+<-----------------------------------------i added by me for proper logging------------------------------------------------------>      
         for i, strategy in enumerate(strategies):
             try:
                 llm_call_num = i + 2
